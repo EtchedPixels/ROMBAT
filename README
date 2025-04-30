@@ -1,0 +1,34 @@
+ROMBAT
+
+ROMBAT is a 256 byte or less mini-monitor for the Z80 processor. It provides
+functionality to read and write memory and I/O as well as to execute code.
+ROMBAT can function without working RAM and is primarily intended to be used
+as a board bring up tool or as a fallback if boot code finds hardware
+problems.
+
+Commands
+
+AAAA R		Display the contents of address AAAA and increment
+R		Display the contents of the working address and increment
+AAAA DD W	Write DD to AAAA, increment AAAA
+DD W		Write DD to the current working address and increment
+AAAA X		Execute
+X		Execute from working address (not usually useful)
+AAAA I		Display the contents of I/O port AAAA
+I		Display the contents of the current I/O port
+AAAA DD O	Output DD to the I/O port AAAA
+DD O		Output DD to the current I/O port
+
+Space simply echoes a space for neatness, newline produces a newline and prompt
+likewise. Delete deletes back through the last address typed.
+
+How It Works
+
+Hex digits are stored in a 24bit value in EHL. Each digit shifts the value
+left four bits and adds it on. W and O move EH to HL and output the old value
+of L to it, W also increments HL. On read the same theory applies R reads a byte
+from HL and increments, O moves HL to BC and does in (c).
+
+The code execution uses the stack as a threadcode engine. Each ret is
+effectively a move to the next operation word.
+
