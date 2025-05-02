@@ -47,11 +47,11 @@ start:
 	xor	a
 	ld	d,(hl)
 	cp	d
-	jr	z, newline
+	jr	z, newline_init
 	inc	hl
 	ret
 rombat:
-	.ascii	'ROMBAT 0.1'
+	.ascii	'ROMBAT 0.1a'
 	.byte 0
 
 start_sp:
@@ -60,6 +60,9 @@ start_sp:
 ;
 ;	----------8<----------- to here
 ;
+newline_init:
+	ld	h,a		; clear the initial working addr
+	ld	l,a		; for some kind of consistent start
 newline:
 	ld	sp,nl_sp
 	ld	d,13
@@ -143,7 +146,7 @@ not_w:
 	jr	c, digit
 	cp	'A'-48
 	jr	c, waitk
-	cp	'F'-48
+	cp	'F'-48+1
 	jr	nc,waitk
 	sub	7
 digit:	rla
@@ -151,20 +154,16 @@ digit:	rla
 	rla
 	rla
 	rla
-	rl	l
-	rl	h
+	adc	hl,hl
 	rl	e
 	rla
-	rl	l
-	rl	h
+	adc	hl,hl
 	rl	e
 	rla
-	rl	l
-	rl	h
+	adc	hl,hl
 	rl	e
 	rla
-	rl	l
-	rl	h
+	adc	hl,hl
 	rl	e
 	ret			; and echo char in D
 hexdo1:
@@ -175,13 +174,11 @@ hexdo1:
 	rra
 	rra
 hexdo2:
-	and	0x0F
-	cp	0x0A
-	jr	c,hexc
-	add	a,7
-hexc:	add	a,48
+	or	0xF0
+	daa
+	add	a,0xA0
+	adc	a,0x40
 	ld	d,a
-	.byte	0xCA		; JP, Z never taken so skips 2 bytes
 outc:	in	a,(ACIA_S)
 	and	2
 	jr	z,outc
